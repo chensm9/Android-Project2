@@ -23,13 +23,13 @@
 
 #### 要求  
 * 在启动应用时，会有通知产生，随机推荐一个食品。
-![preview](https://gitee.com/code_sysu/PersonalProject2/blob/master/manual/images/week7_static_notification.jpg)
+ ![preview](https://gitee.com/code_sysu/PersonalProject2/raw/master/manual/images/week7_static_notification.jpg)
 * 点击通知跳转到所推荐食品的详情界面。
-![preview](https://gitee.com/code_sysu/PersonalProject2/blob/master/manual/images/week7_static_jump.jpg) 
+ ![preview](https://gitee.com/code_sysu/PersonalProject2/raw/master/manual/images/week7_static_jump.jpg) 
 * 点击收藏图标，会有对应通知产生，并通过Eventbus在收藏列表更新数据。
-![preview](https://gitee.com/code_sysu/PersonalProject2/blob/master/manual/images/week7_requirement3.jpg) 
+ ![preview](https://gitee.com/code_sysu/PersonalProject2/raw/master/manual/images/week7_requirement3.jpg) 
 * 点击通知返回收藏列表。
-![preview](https://gitee.com/code_sysu/PersonalProject2/blob/master/manual/images/week7_requirement4.jpg) 
+ ![preview](https://gitee.com/code_sysu/PersonalProject2/raw/master/manual/images/week7_requirement4.jpg) 
 * 实现方式要求:启动页面的通知由静态广播产生，点击收藏图标的通知由动态广播产生。 
 
  
