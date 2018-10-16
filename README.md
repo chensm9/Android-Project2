@@ -68,15 +68,15 @@
 
 #### 要求 
 * widget初始情况如下：      
-![preview](https://gitee.com/code_sysu/PersonalProject2/raw/master/manual/images/week8_begin.png) 
+![preview](https://gitee.com/code_sysu/PersonalProject2/raw/master/manual/images/week8_begin.PNG) 
 * 点击widget可以启动应用，并在widget随机推荐一个食品。      
-![preview](https://gitee.com/code_sysu/PersonalProject2/raw/master/manual/images/week8_recommendation.png)
+![preview](https://gitee.com/code_sysu/PersonalProject2/raw/master/manual/images/week8_recommendation.PNG)
 * 点击widget跳转到所推荐食品的详情界面。     
-![preview](https://gitee.com/code_sysu/PersonalProject2/raw/master/manual/images/week8_jump.png) 
+![preview](https://gitee.com/code_sysu/PersonalProject2/raw/master/manual/images/week8_jump.PNG) 
 * 点击收藏图标，widget相应更新。     
-![preview](https://gitee.com/code_sysu/PersonalProject2/raw/master/manual/images/week8_update.png) 
+![preview](https://gitee.com/code_sysu/PersonalProject2/raw/master/manual/images/week8_update.PNG) 
 * 点击widget跳转到收藏列表。     
-![preview](https://gitee.com/code_sysu/PersonalProject2/raw/master/manual/images/week8_collection.png) 
+![preview](https://gitee.com/code_sysu/PersonalProject2/raw/master/manual/images/week8_collection.PNG) 
 * 实现方式要求:启动时的widget更新通过静态广播实现，点击收藏图标时的widget更新通过动态广播实现。 
 
  
