@@ -1,0 +1,11 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval" >
+    <!-- 按钮背景色 -->
+    <solid android:color="#3F51B5" />
+    <!-- 设置左右边框与文字间距10dp，上下边框与文字间距5dp -->
+    <padding
+        android:top="18dp"
+        android:bottom="18dp"
+        android:left="23dp"
+        android:right="23dp" />
+</shape>
