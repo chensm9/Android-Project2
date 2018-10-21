@@ -2,12 +2,9 @@ package com.example.admin.healthyfoodlistview;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -15,10 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import org.greenrobot.eventbus.EventBus;
 
 public class DetailActivity extends AppCompatActivity {
     private Collection collection;
@@ -57,16 +51,18 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     public void backButtonOnClick(View target) {
-        if (!collection.getIs_collected())
-            finish();
-        else {
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("data", collection);
-            Intent mIntent = new Intent();
-            mIntent.putExtras(bundle);
-            setResult(RESULT_OK, mIntent);
-            finish();
-        }
+        // 现在使用Eventbus传递，这里就不需要返回参数了，直接finish
+        finish();
+//        if (!collection.getIs_collected())
+//            finish();
+//        else {
+//            Bundle bundle = new Bundle();
+//            bundle.putSerializable("data", collection);
+//            Intent mIntent = new Intent();
+//            mIntent.putExtras(bundle);
+//            setResult(RESULT_OK, mIntent);
+//            finish();
+//        }
     }
 
     public void startButtonOnClick(View target) {
@@ -82,5 +78,17 @@ public class DetailActivity extends AppCompatActivity {
     public void CollectImgOnClick(View target) {
         collection.setIs_collected(true);
         Toast.makeText(getApplication(), "已收藏", Toast.LENGTH_SHORT).show();
+        // 发送动态广播
+        sendDynamicBroadcast();
+        // 传递事件
+        EventBus.getDefault().post(new MessageEvent(collection));
+    }
+
+    protected void sendDynamicBroadcast() {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("data", collection);
+        Intent intentBroadcast = new Intent(DynamicReceiver.DYNAMICACTION);
+        intentBroadcast.putExtras(bundle);
+        sendBroadcast(intentBroadcast);
     }
 }

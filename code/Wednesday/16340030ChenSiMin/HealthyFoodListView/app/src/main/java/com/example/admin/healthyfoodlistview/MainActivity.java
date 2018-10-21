@@ -1,7 +1,8 @@
 package com.example.admin.healthyfoodlistview;
 
+import android.content.ComponentName;
 import android.content.DialogInterface;
-import android.support.annotation.NonNull;
+import android.content.IntentFilter;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -9,13 +10,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.os.Bundle;
 import android.content.Intent;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
@@ -28,13 +31,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Random;
 
 import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.OvershootInLeftAnimator;
 
 
 public class MainActivity extends AppCompatActivity {
-    final List<Collection> data = new ArrayList<>();;
+    final List<Collection> data = new ArrayList<>();
     final List<Collection> collectionList = new ArrayList<>();
     final MyListViewAdapter myListViewAdapter = new MyListViewAdapter(MainActivity.this, collectionList);
     final MyRecyclerViewAdapter myRecyclerViewAdapter = new MyRecyclerViewAdapter<Collection>(MainActivity.this, R.layout.list_item, data) {
@@ -52,12 +56,43 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // 初始化读取数据
         initData();
+        // 发送静态广播(获取随机数据)
+        sendStaticBroadcast();
+        // 初始化两个列表View
         initRecyclerView();
         initListView();
+        // 注册订阅者
+        EventBus.getDefault().register(this);
+        IntentFilter dynamic_filter = new IntentFilter();
+        //添加动态广播的Action
+        dynamic_filter.addAction(DynamicReceiver.DYNAMICACTION);
+        DynamicReceiver dynamicReceiver = new DynamicReceiver();
+        registerReceiver(dynamicReceiver, dynamic_filter);    //注册自定义动态广播消息
     }
 
-    protected void initData(){
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.getAction().equals(DynamicReceiver.DYNAMICACTION)) {
+            ListView listView = findViewById(R.id.listView);
+            RecyclerView recyclerView = findViewById(R.id.recyclerView);
+            FloatingActionButton button = findViewById(R.id.btn);;
+            button.setImageResource(R.drawable.collect);
+            recyclerView.setVisibility(View.INVISIBLE);
+            listView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // 解注册
+        EventBus.getDefault().unregister(this);
+    }
+
+    protected void initData() {
         try {
             InputStream is = getAssets().open("FoodInfo.txt");
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -71,6 +106,21 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
+
+    protected void sendStaticBroadcast() {
+        Random random = new Random();
+        int n = random.nextInt(data.size());
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("data", data.get(n - 1));   //随机获取一个数据
+        Intent intentBroadcast = new Intent(StaticReceiver.STATICACTION);
+        intentBroadcast.putExtras(bundle);
+        intentBroadcast.setComponent(new
+                ComponentName(
+                    getPackageName(),
+                getPackageName() + ".StaticReceiver"
+        ));
+        sendBroadcast(intentBroadcast);
     }
 
     protected void initListView() {
@@ -93,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("data", collectionList.get(i-1));
                 intent.putExtras(bundle);
+                startActivity(intent);
                 startActivityForResult(intent, 2);
             }
         });
@@ -109,8 +160,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         Toast.makeText(getApplication(), "删除"+name.getText(), Toast.LENGTH_SHORT).show();
-                        collectionList.remove(position - 1);
-                        myListViewAdapter.notifyDataSetChanged();
+                        myListViewAdapter.removeItem(position - 1);
                     }
                 });
                 // 设置对话框取消按钮
@@ -147,7 +197,8 @@ public class MainActivity extends AppCompatActivity {
                 myRecyclerViewAdapter.notifyDataSetChanged();
             }
         });
-        ScaleInAnimationAdapter scaleInAnimationAdapter = new ScaleInAnimationAdapter(myRecyclerViewAdapter);
+        ScaleInAnimationAdapter scaleInAnimationAdapter =
+                new ScaleInAnimationAdapter(myRecyclerViewAdapter);
         scaleInAnimationAdapter.setDuration(500);
         recyclerView.setAdapter((scaleInAnimationAdapter));
         recyclerView.setItemAnimator(new OvershootInLeftAnimator());
@@ -176,5 +227,10 @@ public class MainActivity extends AppCompatActivity {
             collectionList.add(c);
             myListViewAdapter.refreshList(collectionList);
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        myListViewAdapter.addItem(event.getCollection());
     }
 }
