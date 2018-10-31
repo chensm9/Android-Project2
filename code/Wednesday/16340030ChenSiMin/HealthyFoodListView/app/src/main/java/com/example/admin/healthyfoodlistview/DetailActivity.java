@@ -1,6 +1,7 @@
 package com.example.admin.healthyfoodlistview;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +29,11 @@ public class DetailActivity extends AppCompatActivity {
         collection.setIs_collected(false);
         fullStar = false;
         Init();
+        //添加动态广播的Action
+        IntentFilter dynamic_filter = new IntentFilter();
+        dynamic_filter.addAction(DynamicReceiver.DYNAMICACTION);
+        DynamicReceiver dynamicReceiver = new DynamicReceiver();
+        registerReceiver(dynamicReceiver, dynamic_filter);    //注册自定义动态广播消息
     }
 
     void Init() {
@@ -87,6 +93,7 @@ public class DetailActivity extends AppCompatActivity {
     protected void sendDynamicBroadcast() {
         Bundle bundle = new Bundle();
         bundle.putSerializable("data", collection);
+        // 发送动态广播
         Intent intentBroadcast = new Intent(DynamicReceiver.DYNAMICACTION);
         intentBroadcast.putExtras(bundle);
         sendBroadcast(intentBroadcast);

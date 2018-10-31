@@ -38,6 +38,7 @@ import jp.wasabeef.recyclerview.animators.OvershootInLeftAnimator;
 
 
 public class MainActivity extends AppCompatActivity {
+    private int randomNum;
     final List<Collection> data = new ArrayList<>();
     final List<Collection> collectionList = new ArrayList<>();
     final MyListViewAdapter myListViewAdapter = new MyListViewAdapter(MainActivity.this, collectionList);
@@ -65,16 +66,12 @@ public class MainActivity extends AppCompatActivity {
         initListView();
         // 注册订阅者
         EventBus.getDefault().register(this);
-        IntentFilter dynamic_filter = new IntentFilter();
-        //添加动态广播的Action
-        dynamic_filter.addAction(DynamicReceiver.DYNAMICACTION);
-        DynamicReceiver dynamicReceiver = new DynamicReceiver();
-        registerReceiver(dynamicReceiver, dynamic_filter);    //注册自定义动态广播消息
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+
         if (intent.getAction().equals(DynamicReceiver.DYNAMICACTION)) {
             ListView listView = findViewById(R.id.listView);
             RecyclerView recyclerView = findViewById(R.id.recyclerView);
@@ -83,6 +80,11 @@ public class MainActivity extends AppCompatActivity {
             recyclerView.setVisibility(View.INVISIBLE);
             listView.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    protected void onRestart(){
+        super.onRestart();
     }
 
     @Override
@@ -109,10 +111,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void sendStaticBroadcast() {
+        // 随机获取一个数据放入bundle
         Random random = new Random();
-        int n = random.nextInt(data.size());
+        randomNum = random.nextInt(data.size());
         Bundle bundle = new Bundle();
-        bundle.putSerializable("data", data.get(n - 1));   //随机获取一个数据
+        bundle.putSerializable("data", data.get(randomNum - 1));
+        // 发送静态广播
         Intent intentBroadcast = new Intent(StaticReceiver.STATICACTION);
         intentBroadcast.putExtras(bundle);
         intentBroadcast.setComponent(new
@@ -121,6 +125,16 @@ public class MainActivity extends AppCompatActivity {
                 getPackageName() + ".StaticReceiver"
         ));
         sendBroadcast(intentBroadcast);
+        // 发送Widget静态广播
+        Intent widgetIntentBroadcast = new Intent();
+        widgetIntentBroadcast.setAction(NewAppWidget.WIDGETSTATICACTION);
+        widgetIntentBroadcast.putExtras(bundle);
+        widgetIntentBroadcast.setComponent(new
+                ComponentName(
+                getPackageName(),
+                getPackageName() + ".NewAppWidget"
+        ));
+        sendBroadcast(widgetIntentBroadcast);
     }
 
     protected void initListView() {

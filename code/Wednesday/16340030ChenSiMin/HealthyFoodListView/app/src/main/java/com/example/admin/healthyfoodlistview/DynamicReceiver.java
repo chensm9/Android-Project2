@@ -4,10 +4,13 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.RemoteViews;
 
 public class DynamicReceiver extends BroadcastReceiver {
     public static final String DYNAMICACTION = "com.example.hasee.myapplication2.MyDynamicFilter";
@@ -25,7 +28,7 @@ public class DynamicReceiver extends BroadcastReceiver {
             channel.setDescription(channelDescrption);
             NotificationManager manager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
             manager.createNotificationChannel(channel);
-
+            // 实现notification提示已收藏
             Intent mIntent = new Intent(context, MainActivity.class).setAction(DYNAMICACTION);
             PendingIntent pendingIntent = PendingIntent.getActivity(context, id, mIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             Notification.Builder builder = new Notification.Builder(context, channelId);
@@ -37,6 +40,20 @@ public class DynamicReceiver extends BroadcastReceiver {
                     .setAutoCancel(true); //点击通知头自动取消
             Notification notification = builder.build();
             manager.notify(id, notification);
+            id++;
+            // 实现widget修改text为已收藏
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.new_app_widget);
+            views.setTextViewText(R.id.appwidget_text, "已收藏 " + collection.getName());
+            views.setImageViewResource(R.id.widget_image, R.drawable.full_star);
+            Intent mIntent2 = new Intent(context,MainActivity.class).setAction(DYNAMICACTION);
+            Bundle bundles = new Bundle();
+            bundles.putSerializable("data", collection);
+            mIntent.putExtras(bundles);
+            PendingIntent pendingIntent2 = PendingIntent.getActivity(context, id, mIntent2, PendingIntent.FLAG_CANCEL_CURRENT);
+            views.setOnClickPendingIntent(R.id.widget_image,pendingIntent2);
+            ComponentName me = new ComponentName(context, NewAppWidget.class);
+            appWidgetManager.updateAppWidget(me, views);
             id++;
         }
     }
